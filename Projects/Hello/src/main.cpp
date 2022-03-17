@@ -1,4 +1,5 @@
 #include <Arduino.h>
+
 //#include <iostream>
 
 void setup() {
@@ -10,9 +11,8 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  //std::cout<<"Hello World"<<std::endl;
+  //std::cout<<"Hello World"<<std::endl;      //dose not work here because we are using serial monitor on arduino 
   Serial.println("Hello World");
-  delay(1000);
-
+  delay(5000);    //1000 = 1 second
 
 }
