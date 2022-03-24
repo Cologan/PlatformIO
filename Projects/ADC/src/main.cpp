@@ -18,8 +18,8 @@ float adc_to_voltage(int adc_read){        //function to convert adc values to v
 
 
 void setup() {
-  pinMode(adc_creator, OUTPUT);
-  Serial.begin(9600);
+  //pinMode(adc_creator, OUTPUT);
+  Serial.begin(115200);
 
   // initialize OLED display with address 0x3C for 128x64
   if (!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
@@ -27,27 +27,55 @@ void setup() {
     while (true);
   }
 
-  delay(2000);         // wait for initializing
+  delay(2);         // wait for initializing
   
 
 }
 
 void loop() {
-  oled.clearDisplay(); // clear display
-  if((adc_value/1024)==0){
-  digitalWrite(adc_creator, HIGH);        //turns digitalpin to High
-  }else{
-    digitalWrite(adc_creator, LOW);       //turns digitalpin to Low
-  }
-  adc_value=analogRead(adc_reader);       //Reads Analoge value from the Pin A0 on nodeMCU
-  oled.setTextSize(1);                    // text size
-  oled.setTextColor(WHITE);               // text color
-  oled.setCursor(0, 10);                  // position to display
-  oled.print("ADC Value: ");              // text to display
-  oled.print(adc_to_voltage(adc_value));  //print outs voltage
-  oled.print(" V");              // text to display
-  oled.display();                         // show on OLED
-  delay(500);
+  // oled.clearDisplay(); // clear display
+  // if((adc_value/1024)==0){
+  // digitalWrite(adc_creator, HIGH);        //turns digitalpin to High
+  // }else{
+  //   digitalWrite(adc_creator, LOW);       //turns digitalpin to Low
+  // }
+  // adc_value=analogRead(adc_reader);       //Reads Analoge value from the Pin A0 on nodeMCU
+  // oled.setTextSize(1);                    // text size
+  // oled.setTextColor(WHITE);               // text color
+  // oled.setCursor(0, 10);                  // position to display
+  // oled.print("ADC Value: ");              // text to display
+  // oled.print(adc_to_voltage(adc_value));  //print outs voltage
+  // oled.print(" V");              // text to display
+  // oled.display();                         // show on OLED
+  // delay(500);
 
+  for(int Duty_cycle = 0; Duty_cycle < 1022; Duty_cycle++){ 
+    oled.clearDisplay(); // clear display  
+    analogWrite(adc_creator, Duty_cycle);
+    adc_value=analogRead(adc_reader);       //Reads Analoge value from the Pin A0 on nodeMCU
+    oled.setTextSize(1);                    // text size
+    oled.setTextColor(WHITE);               // text color
+    oled.setCursor(0, 10);                  // position to display
+    oled.print("ADC Value: ");              // text to display
+    oled.print(adc_to_voltage(adc_value));  //print outs voltage
+    oled.print(" V");                       // text to display
+    oled.display();                         // show on OLED
+    delay(100);
+  }
+  Serial.println("loop1 done");
+  for(int Duty_cycle = 1022; Duty_cycle > 0; Duty_cycle--){
+    oled.clearDisplay(); // clear display  
+    analogWrite(adc_creator, Duty_cycle);
+    adc_value=analogRead(adc_reader);       //Reads Analoge value from the Pin A0 on nodeMCU
+    oled.setTextSize(1);                    // text size
+    oled.setTextColor(WHITE);               // text color
+    oled.setCursor(0, 10);                  // position to display
+    oled.print("ADC Value: ");              // text to display
+    oled.print(adc_to_voltage(adc_value));  //print outs voltage
+    oled.print(" V");                       // text to display
+    oled.display();                         // show on OLED
+    delay(100);
+  }
+  Serial.println("loop2 done");
 }
 
