@@ -19,7 +19,7 @@ float adc_to_voltage(int adc_read){        //function to convert adc values to v
 
 void setup() {
   //pinMode(adc_creator, OUTPUT);
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   // initialize OLED display with address 0x3C for 128x64
   if (!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
@@ -49,7 +49,7 @@ void loop() {
   // oled.display();                         // show on OLED
   // delay(500);
 
-  for(int Duty_cycle = 0; Duty_cycle < 1022; Duty_cycle++){ 
+  for(int Duty_cycle = 0; Duty_cycle < 1023; Duty_cycle++){ 
     oled.clearDisplay(); // clear display  
     analogWrite(adc_creator, Duty_cycle);
     adc_value=analogRead(adc_reader);       //Reads Analoge value from the Pin A0 on nodeMCU
@@ -62,8 +62,8 @@ void loop() {
     oled.display();                         // show on OLED
     delay(100);
   }
-  Serial.println("loop1 done");
-  for(int Duty_cycle = 1022; Duty_cycle > 0; Duty_cycle--){
+
+  for(int Duty_cycle = 1023; Duty_cycle > 0; Duty_cycle--){
     oled.clearDisplay(); // clear display  
     analogWrite(adc_creator, Duty_cycle);
     adc_value=analogRead(adc_reader);       //Reads Analoge value from the Pin A0 on nodeMCU
@@ -76,6 +76,6 @@ void loop() {
     oled.display();                         // show on OLED
     delay(100);
   }
-  Serial.println("loop2 done");
+
 }
 
