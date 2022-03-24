@@ -9,9 +9,13 @@
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
 int adc_value =0;
-int adc_converted=0;
 // declare an SSD1306 display object connected to I2C
 Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
+float adc_to_voltage(int adc_read){        //function to convert adc values to voltage 
+    return (0.00322*adc_read);              //NodeMCU max voltage 3.3 V
+}
+
 
 void setup() {
   pinMode(adc_creator, OUTPUT);
@@ -31,31 +35,19 @@ void setup() {
 void loop() {
   oled.clearDisplay(); // clear display
   if((adc_value/1024)==0){
-  digitalWrite(adc_creator, HIGH);
+  digitalWrite(adc_creator, HIGH);        //turns digitalpin to High
   }else{
-    digitalWrite(adc_creator, LOW);
+    digitalWrite(adc_creator, LOW);       //turns digitalpin to Low
   }
-  //digitalWrite(adc_creator, HIGH);
-  adc_value=analogRead(adc_reader);
-adc_converted=adc_value;
-  oled.setTextSize(1);          // text size
-  oled.setTextColor(WHITE);     // text color
-  oled.setCursor(0, 10);        // position to display
-  oled.print("ADC Value: "); // text to display
-  oled.print(adc_value);
-  oled.display();               // show on OLED
+  adc_value=analogRead(adc_reader);       //Reads Analoge value from the Pin A0 on nodeMCU
+  oled.setTextSize(1);                    // text size
+  oled.setTextColor(WHITE);               // text color
+  oled.setCursor(0, 10);                  // position to display
+  oled.print("ADC Value: ");              // text to display
+  oled.print(adc_to_voltage(adc_value));  //print outs voltage
+  oled.print(" V");              // text to display
+  oled.display();                         // show on OLED
   delay(500);
-
-  // oled.clearDisplay(); // clear display
-  // digitalWrite(adc_creator, LOW);
-  // adc_value=analogRead(adc_reader);
-  // oled.setTextSize(1);          // text size
-  // oled.setTextColor(WHITE);     // text color
-  // oled.setCursor(0, 10);        // position to display
-  // oled.print("ADC Value: "); // text to display
-  // oled.print(adc_value);
-  // oled.display();               // show on OLED
-  // delay(500);
 
 }
 
