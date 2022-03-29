@@ -1,35 +1,43 @@
 #include <Arduino.h>
 #include <SSD1306.h>
 
-#define lo_plus D5
-#define lo_minus D6
+int loPlus = D6;
+int loMinus = D5;
+int ECGout = A0;
 
-SSD1306Wire display(0x3c, SDA, SCL);
+SSD1306Wire display(0x3c, SDA, SCL);  //Setup display connection
 
 void setup() {
-  // put your setup code here, to run once:
 
-  Serial.begin(115200);   //Start Serial connection
-  Serial.println();       //printing free space on Serial monitor 
-  Serial.println();       //printing free space on Serial monitor
+Serial.begin(115200); // initialize the serial communication
 
-  pinMode(lo_plus, INPUT); // Setup for leads off detection LO +
-  pinMode(lo_minus, INPUT); // Setup for leads off detection LO -
+pinMode(loPlus, INPUT); // Setup for leads off detection LO +
+pinMode(loMinus, INPUT); // Setup for leads off detection LO –
 
-  display.init();         //initialising display/oled
+display.init(); //initialise display
+display.clear();  //clear display
+display.flipScreenVertically(); //fliiping for ease of use
 
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-   
-  if((digitalRead(10) == 1)||(digitalRead(11) == 1)){
-  Serial.println('!');
-  }
-  else{
-  // send the value of analog input 0:
-  Serial.println(analogRead(A0));
-  }
-  //Wait for a bit to keep serial data from saturating
-  delay(1);
+
+void loop()
+{
+  display.clear();
+if((digitalRead(loPlus) == 1)||(digitalRead(loMinus) == 1))
+{
+Serial.println("!");
+display.drawString(0,0,"!");
+display.display();
+}
+else
+{
+// send the value of analog input 0:
+Serial.println(analogRead(ECGout));
+display.drawString(0,0,String(analogRead(ECGout)));
+display.display();
+}
+
+//Waiting to keep serial data away from saturating
+delay(5);
 }
