@@ -1,49 +1,44 @@
 #include <Arduino.h>
 #include <SSD1306.h>
-#include<ESP8266TimerInterrupt.h>
-#include <ESP8266_ISR_Timer.h>
-#define USING_TIM_DIV1                false           // for shortest and most accurate timer
-#define USING_TIM_DIV16               true           // for medium time and medium accurate timer
-#define USING_TIM_DIV256              false            // for longest timer but least accurate. Default
+//#include <ESP8266TimerInterrupt.h>
+//#include <ESP8266_ISR_Timer.h>
+#include <Ticker.h>
 
-#include "ESP8266TimerInterrupt.h"
-#include "ESP8266_ISR_Timer.h"
-
-// Init ESP8266 timer 1
-ESP8266Timer ITimer;
-
-void IRAM_ATTR TimerHandler()
-{
-ISR_timer.run();
-}
-
-#define HW_TIMER_INTERVAL_MS 50L
 
 int loPlus = D6;
 int loMinus = D5;
 int ECGout = A0;
 
-void InterruptFunction()
-{
-
-}
-
 SSD1306Wire display(0x3c, SDA, SCL);  //Setup display connection
 
+void ICACHE_RAM_ATTR onTimerISR()
+{
+buffer.write();
+}
+
 void setup() {
+/*
+Funktion display: soll checken ob relevante menge an daten geschrieben wurde (250 Hz -> 60Hz*2 ~ Alle 4 Werte als tick resultiert grob in 2 Sekunden auf Display)
+Soll mit jedem Poll die letzten 128 Werte auf display ausgeschrieben werden
+/Aufgabe Daniel: Timer und Buffer
+/-> Anschauen Wifi & Server
+*/
 
 Serial.begin(115200); // initialize the serial communication
 
+//GPIO Init
 pinMode(loPlus, INPUT); // Setup for leads off detection LO +
 pinMode(loMinus, INPUT); // Setup for leads off detection LO –
 
-//Interval in microsecs
-ITimer.attachInterruptInterval(HW_TIMER_INTERVAL_MS*1000,TimerHandler);
+//Timer Init
+timer1_attachInterrupt (onTimerISR);
+timer1_enable(TIM_DIV16,TIM_EDGE,TIM_LOOP);
+timer1_write(20000);
 
+//Display Init
 display.init(); //initialise display
 display.clear();  //clear display
 display.flipScreenVertically(); //fliiping for ease of use
-timer1_attachInterrupt(onTimerISR);
 
 }
 
