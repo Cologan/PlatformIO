@@ -1,17 +1,6 @@
 {
 	"folders": [
 		{
-			"path": "../../lab1_Board_test"
-		},
-		{
-			"name": "Lab2_Oled_test",
-			"path": "../../Lab2_Oled_test"
-		},
-		{
-			"name": "Lab3_ADC",
-			"path": "../../Lab3_ADC"
-		},
-		{
 			"name": "EKG",
 			"path": ".."
 		}

@@ -5,6 +5,8 @@ int loPlus = D6;
 int loMinus = D5;
 int ECGout = A0;
 
+timer1_
+
 SSD1306Wire display(0x3c, SDA, SCL);  //Setup display connection
 
 void setup() {
