@@ -1,25 +1,30 @@
 #include <Arduino.h>
 #include <SSD1306.h>
+#include <ESP8266TimerInterrupt.h>
 #include <ESP8266WiFi.h>
 
-#define loPlus    D6
-#define loMinus   D5
-#define ECGout    A0
-#define ARRAY_SIZE 7500       //Defining array size 7500 data at 250 hz =30 sec data
+#define USING_TIM_DIV256        true        // for longest timer but least accurate. Default
+#define TIMER_INTERVAL_MS       15000
+#define loPlus                  D6
+#define loMinus                 D5
+#define ECGout                  A0
+#define ARRAY_SIZE              7500       //Defining array size 7500 data at 250 hz =30 sec data
 
-int dataarray[ARRAY_SIZE]={}; //empty array
-int Headindex=0;              //write index
-int Tailindex=0;              //read index
-int data=0;                   //fill status 
+int dataarray[ARRAY_SIZE]={};             //empty array
+int Headindex=0;                          //write index
+int Tailindex=0;                          //read index
+int data=0;                               //fill status 
 
 const char *ssid =  "FRITZ!Box 7590 VL";  
 const char *pass =  "56616967766283031728";
 
 int test=0;
 
-SSD1306Wire display(0x3c, SDA, SCL);
+SSD1306Wire display(0x3c, SDA, SCL);      //init oled 
 
-int ecgreader(){          //Function to read ecg signals
+ESP8266Timer ITimer;                      // Init ESP8266 timer 1 , using timer 1 since timer 0 is used by wifi
+
+int ecgreader(){                          //Function to read ecg signals
   //Serial.println("ECGreader");
   if((digitalRead(loPlus) == 1)||(digitalRead(loMinus) == 1)){
     Serial.println('!');
@@ -34,16 +39,16 @@ int ecgreader(){          //Function to read ecg signals
   
 }
 
-void buffer_save(){       //Ringbuffer to save data
+void buffer_save(){                       //Ringbuffer to save data
   dataarray[Headindex]=ecgreader();  
-  Headindex++;      //write index
-  data++;           //incrementing fill status
-  Headindex=Headindex%ARRAY_SIZE;   //wraparound
+  Headindex++;                            //write index
+  data++;                                 //incrementing fill status
+  Headindex=Headindex%ARRAY_SIZE;         //wraparound
   Serial.print("Saving ");
-  delay(100);
+  delay(4);                               //wait for 4 milli sec
 }
 
-void buffer_read(){       //Ringbuffer to read data
+void buffer_read(){                       //Ringbuffer to read data
 while(1){
   if(data==0){
     Serial.println("No data in buffer");
@@ -58,6 +63,12 @@ while(1){
   delay(100);
 }
 
+}
+
+void IRAM_ATTR TimerHandler(){            //Timer ISR
+  while(1){
+    buffer_save();
+  }
 }
 
 void draw_grid(){         //Draw X and Y Axis
@@ -118,6 +129,16 @@ void wifi_connection(){   //Wifi connection setup
 void setup() {            // put your setup code here, to run once:
   
   Serial.begin(115200);
+  while(!Serial);
+
+  delay(300);
+  
+  Serial.print(F("\nECG Lab Project ")); //Project Title
+  Serial.println(ARDUINO_BOARD);         //Board name
+  Serial.print(F("CPU Frequency = "));    //CPU stats
+  Serial.print(F_CPU / 1000000); 
+  Serial.println(F(" MHz"));
+  //ITimer.attachInterruptInterval(TIMER_INTERVAL_MS * 1000, TimerHandler);
 
   pinMode(loPlus, INPUT); // Setup for leads off detection LO +
   pinMode(loMinus, INPUT); // Setup for leads off detection LO –
