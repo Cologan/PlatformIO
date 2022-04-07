@@ -2,6 +2,7 @@
 #include <SSD1306.h>
 #include <ESP8266TimerInterrupt.h>
 #include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
 
 #define USING_TIM_DIV16         true        // for longest timer but least accurate. Default
 #define TIMER_INTERVAL_MS       4
@@ -15,10 +16,20 @@ long int Headindex=0;                          //write index
 long int Tailindex=0;                          //read index
 long int data=0;                               //fill status 
 
+int X=0;
+int X0;
+int Y0;
+int Y;
 long int i=0;
 
 const char *ssid =  "FRITZ!Box 7590 VL";  
 const char *pass =  "56616967766283031728";
+
+WiFiUDP Udp;
+unsigned int localUdpPort = 4210;                       // local port to listen on
+char incomingPacket[255];                               // buffer for incoming packets
+char  replyPacket[] = "Hi there! Got the message :-)";  // a reply string to send back
+
 
 int data_from_buffer=0;
 
@@ -120,12 +131,15 @@ void wifi_connection(){   //Wifi connection setup
     delay(500);
     Serial.print(".");
   }
+  Udp.begin(localUdpPort);
   Serial.println("");
   Serial.println("WiFi connected"); 
   Serial.println('\n');
   Serial.println("Connection established!");  
   Serial.print("IP address:\t");
   Serial.println(WiFi.localIP());
+  Serial.print("UDP Port:\t");
+  Serial.println(localUdpPort);
 }
 
 
@@ -143,7 +157,7 @@ void setup() {            // put your setup code here, to run once:
   Serial.print(F("CPU Frequency = "));    //CPU stats
   Serial.print(F_CPU / 1000000); 
   Serial.println(F(" MHz"));
-  //wifi_connection();
+  wifi_connection();
   ITimer.attachInterruptInterval(TIMER_INTERVAL_MS * 1000, TimerHandler);
 
   pinMode(loPlus, INPUT); // Setup for leads off detection LO +
@@ -155,11 +169,7 @@ void setup() {            // put your setup code here, to run once:
   draw_grid();
 
 }
-int X=0;
-  int X0;
-  int Y0;
-  
-  int Y;
+
 void loop() {             // put your main code here, to run repeatedly:
   
   //display.drawString(14,10,"Hello World");
