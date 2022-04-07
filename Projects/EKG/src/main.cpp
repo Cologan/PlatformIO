@@ -2,9 +2,22 @@
 #include <SSD1306.h>
 #include <ESP8266WiFi.h>							// Instructions from https://tttapa.github.io/ESP8266/Chap07%20-%20Wi-Fi%20Connections.html
 #include <WiFiUdp.h>								//For functions relating to UDP ports, Instructions from https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/udp-examples.html
-#include <Ticker.h>
+#include <ESP8266TimerInterrupt.h>
+
+#define USING_TIM_DIV16        true        // for longest timer but least accurate. Default
+#define TIMER_INTERVAL_MS       15000
+#define IoPlus D6
+#define IoMinus D5
+#define ECGout A0
 #define ARRAY_SIZE 7500
 
+//Arrayconfig
+int dataarray[ARRAY_SIZE]={0};                  //empty array
+int Headindex=0;                               //start index at 0 
+int Tailindex=0;                                
+int data=0;
+
+//WifiConfig & UDP
 WiFiUDP Udp;
 char incomingPacket[256];							//what size
 
@@ -16,26 +29,57 @@ const char* ssid     = "FRITZ!Box 7590 VL";         // The SSID (name) of the Wi
 const char* password = "56616967766283031728";     // The password of the Wi-Fi network
 
 //ServerConfig
-WiFiServer server(Serverport);
-
-int loPlus = D6;
-int loMinus = D5;
-int ECGout = A0;
-int dataarray[ARRAY_SIZE]={0};      //werten für 30 secs abtasten 250 hz
-int Headindex=0;                //start index at 0 
-int Tailindex=0;
-int data=0;
+//WiFiServer server(Serverport);
+int test=0;
 
 SSD1306Wire display(0x3c, SDA, SCL);  //Setup display connection
 
+ESP8266Timer ITimer;                  //Init Timer 1
+int16_t displayArray[128];
 
-void buffer_write(){  //Funktion deklarieren und definieren 
-  dataarray[Headindex]=analogRead(ECGout);  //starts writing data from 0
-  Headindex++;      //read index
-  Headindex=Headindex%ARRAY_SIZE;
-  //delay(4);     //wait 4 milisecs 
-};    
+void buffer_save(){                       //Ringbuffer to save data
+  dataarray[Headindex]=ecgreader();  
+  Headindex++;                            //write index
+  data++;                                 //incrementing fill status
+  Headindex=Headindex%ARRAY_SIZE;         //wraparound
+  Serial.print("Saving ");
+  //delay(4);                               //wait for 4 milli sec
+} 
    
+int16_t buffer_read(){                       //Ringbuffer to read data
+  if(data==0){
+    Serial.println("No data in buffer");
+    break;
+  }else{*/
+    test=dataarray[Tailindex];
+    Serial.println(test);
+    Tailindex++;
+    Tailindex=Tailindex%ARRAY_SIZE;
+    data--;
+    return test;
+  }
+  //delay(100);
+}
+
+void populate_displayarray()
+{
+for ((int j=0;j<=128;j++)||data==0) //or jumpflag ||() but why
+{
+int16_t m1=buffer_read();
+int16_t m2=buffer_read();
+int16_t m3=buffer_read();
+int16_t m4=buffer_read();
+displayArray[j]=(m1+m2+m3+m4)/4;
+};
+};
+
+void display_drawgraph()
+{
+for (int i=0;i<128;i++)
+{
+  display.drawline(displayArray[i],i,displayArray[i+1],i+1);
+}
+}
 void IRAM_ATTR onTimerISR(){
     buffer_write();
     Serial.println("inside isr");
@@ -85,6 +129,11 @@ void setup() {
   display.println("Connection established!");  
   display.print("IP address:\t");
   display.println(WiFi.localIP());         // Send the IP address of the ESP8266 to the computer
+  display.print("UDP Port is: "); display.println(UDP_PORT);
+  serial.print("IP address:\t");
+  serial.println(WiFi.localIP());         // Send the IP address of the ESP8266 to the computer
+  serial.print("UDP Port is: "); display.println(UDP_PORT);
+  
   delay (3000);							  //Connection established soll 3 Sekunden lang 
   display.clear();
   
