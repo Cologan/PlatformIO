@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "../../EKG"
+		},
+		{
+			"name": "ECG_070422",
+			"path": ".."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"algorithm": "cpp"
+		}
+	}
+}
