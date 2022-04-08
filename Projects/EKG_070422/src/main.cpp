@@ -1,38 +1,38 @@
 //=============================Includes and Defines==========================================================================
-#include <Arduino.h>
-#include <SSD1306.h>
+#include <Arduino.h>                                    // Arduino configs
+#include <SSD1306.h>                                    // Display Configs
 #define USING_TIM_DIV16         true                    // need to be defined before include
-#include <ESP8266TimerInterrupt.h>
-#include <ESP8266WiFi.h>
-#include <WiFiUdp.h>
+#include <ESP8266TimerInterrupt.h>                      // NodeMCU timer and interrupt library
+#include <ESP8266WiFi.h>                                // NodeMCU Wifi Library
+#include <WiFiUdp.h>                                    // Library for UDP connection
 
-#define TIMER_INTERVAL_MS       4
-#define loPlus                  D6
-#define loMinus                 D5
-#define ECGout                  A0
-#define ARRAY_SIZE              7500                    //Defining array size 7500 *data at 250 hz =30 sec data
+#define TIMER_INTERVAL_MS       4                       // Time to call ISR, in milliseconds
+#define loPlus                  D6                      // LO+ output from ECG Sensor
+#define loMinus                 D5                      // LO- output from ECG Sensor
+#define ECGout                  A0                      // ECG Read Output 
+#define ARRAY_SIZE              7500                    // Defining array size 7500 *data at 250 hz =30 sec data
 //===========================================================================================================================
 
 //=============================Globals=======================================================================================
-long int dataarray[ARRAY_SIZE]={0};                     //creating empty array
-long int Headindex=0;                                   //write index
-long int Tailindex=0;                                   //read index
-long int data=0;                                        //fill status 
+long int dataarray[ARRAY_SIZE]={0};                     // Array with 0
+long int Headindex=0;                                   // Write index
+long int Tailindex=0;                                   // Read index
+long int data=0;                                        // Fill status 
 int X=0;
 int X0;
 int Y0;
 int Y;
-long int i=0;
-int data_from_buffer=0;
+long int i=0;                                           // Var required by fakedata function
+int data_from_buffer=0;                                 // Var to temp save data read from array
 //===========================================================================================================================
 
 //=============================Wifi- Config==================================================================================
-const char *ssid =  "FRITZ!Box 7590 VL";  
-const char *pass =  "56616967766283031728";
+const char *ssid =  "FRITZ!Box 7590 VL";                // Name of Wifi
+const char *pass =  "56616967766283031728";             //Password
 //===========================================================================================================================
 
 //=============================UDP===========================================================================================
-WiFiUDP Udp;
+WiFiUDP Udp;                                            
 unsigned int localUdpPort = 4210;                       // local port to listen on
 char incomingPacket[255];                               // buffer for incoming packets
 char  replyPacket[] = "Hi there! Got the message :-)";  // a reply string to send back
@@ -44,14 +44,14 @@ ESP8266Timer ITimer;                                    // Init ESP8266 timer 1 
 //===========================================================================================================================
 
 //=============================Function Declarations=========================================================================
-void fake_data();
-long int ecgreader();
-void buffer_save();
-void buffer_read();
-void IRAM_ATTR TimerHandler();
-void draw_grid();
-void draw_graph();
-void wifi_connection();
+void fake_data();                                       //Fake data for testing
+long int ecgreader();                                   //Function to read ecg signals
+void buffer_save();                                     //Ringbuffer to save data
+void buffer_read();                                     //Ringbuffer to read data
+void IRAM_ATTR TimerHandler();                          //Timer ISR
+void draw_grid();                                       //Draw X and Y Axis
+void draw_graph();                                      //function to draw graph on oled screen
+void wifi_connection();                                 //Wifi connection setup
 //===========================================================================================================================
 
 //=============================SETUP=========================================================================================
