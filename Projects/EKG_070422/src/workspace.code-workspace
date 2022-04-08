@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		},
+		{
+			"name": "EKG_070422",
+			"path": ".."
+		},
+		{
+			"name": "Test_project",
+			"path": "../../Test_project"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"complex": "cpp"
+		}
+	}
+}
