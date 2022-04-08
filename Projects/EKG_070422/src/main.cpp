@@ -28,7 +28,7 @@ int data_from_buffer=0;                                 // Var to temp save data
 
 //=============================Wifi- Config==================================================================================
 const char *ssid =  "FRITZ!Box 7590 VL";                // Name of Wifi
-const char *pass =  "56616967766283031728";             //Password
+const char *pass =  "56616967766283031728";             // Password
 //===========================================================================================================================
 
 //=============================UDP===========================================================================================
@@ -39,19 +39,19 @@ char  replyPacket[] = "Hi there! Got the message :-)";  // a reply string to sen
 //===========================================================================================================================
 
 //=============================Global Setup==================================================================================
-SSD1306Wire display(0x3c, SDA, SCL);                    //init oled 
+SSD1306Wire display(0x3c, SDA, SCL);                    // init oled 
 ESP8266Timer ITimer;                                    // Init ESP8266 timer 1 , using timer 1 since timer 0 is used by wifi
 //===========================================================================================================================
 
 //=============================Function Declarations=========================================================================
-void fake_data();                                       //Fake data for testing
-long int ecgreader();                                   //Function to read ecg signals
-void buffer_save();                                     //Ringbuffer to save data
-void buffer_read();                                     //Ringbuffer to read data
-void IRAM_ATTR TimerHandler();                          //Timer ISR
-void draw_grid();                                       //Draw X and Y Axis
-void draw_graph();                                      //function to draw graph on oled screen
-void wifi_connection();                                 //Wifi connection setup
+void fake_data();                                       // Fake data for testing
+long int ecgreader();                                   // Function to read ecg signals
+void buffer_save();                                     // Ringbuffer to save data
+void buffer_read();                                     // Ringbuffer to read data
+void IRAM_ATTR TimerHandler();                          // Timer ISR
+void draw_grid();                                       // Draw X and Y Axis
+void draw_graph();                                      // Function to draw graph on oled screen
+void wifi_connection();                                 // Wifi connection setup
 //===========================================================================================================================
 
 //=============================SETUP=========================================================================================
@@ -92,7 +92,7 @@ void loop() {                                           // put your main code he
 
 //=============================Function Definations==========================================================================
 
-void fake_data(){                                       //Fake data for testing
+void fake_data(){                                       // Fake data for testing
 
   dataarray[Headindex]=100*(abs((i++ % 12) - 6));       //This gives a triangular wave of period 12, oscillating between 6 and 0. multiplaying with 100 for bigger amplitude
   //dataarray[Headindex]=10*((i++ % 12) < 6 ? 6 : 0);     //This gives a regular square wave of period 12, oscillating between 6 and 0.
@@ -104,7 +104,7 @@ void fake_data(){                                       //Fake data for testing
   Headindex=Headindex%ARRAY_SIZE;                         //wraparound
 }
 
-long int ecgreader(){                                   //Function to read ecg signals
+long int ecgreader(){                                   // Function to read ecg signals
   //Serial.println("ECGreader");
   if((digitalRead(loPlus) == 1)||(digitalRead(loMinus) == 1)){
     Serial.println('!');
@@ -117,7 +117,7 @@ long int ecgreader(){                                   //Function to read ecg s
   }
 }
 
-void buffer_save(){                                     //Ringbuffer to save data
+void buffer_save(){                                     // Ringbuffer to save data
   for (int j = 0; j<ARRAY_SIZE; j++){
     dataarray[Headindex]=ecgreader();  
     Headindex++;                                        //write index
@@ -128,7 +128,7 @@ void buffer_save(){                                     //Ringbuffer to save dat
   }
 }
 
-void buffer_read(){                                     //Ringbuffer to read data
+void buffer_read(){                                     // Ringbuffer to read data
   if(data==0){
     Serial.println("No data in buffer");
   }else{
@@ -140,12 +140,12 @@ void buffer_read(){                                     //Ringbuffer to read dat
   }
 }
 
-void IRAM_ATTR TimerHandler(){                          //Timer ISR
+void IRAM_ATTR TimerHandler(){                          // Timer ISR
   //buffer_save();
   fake_data();
 }
 
-void draw_grid(){                                       //Draw X and Y Axis
+void draw_grid(){                                       // Draw X and Y Axis
   display.drawHorizontalLine(0,2,120);
   display.drawString(120,4,"X");
   display.drawVerticalLine(3,15,60);
@@ -153,7 +153,7 @@ void draw_grid(){                                       //Draw X and Y Axis
   display.display();
 }
 
-void draw_graph(){                                      //function to draw graph on oled screen
+void draw_graph(){                                      // Function to draw graph on oled screen
   Y=dataarray[Tailindex]+32;
   Tailindex++;
   Tailindex=Tailindex%ARRAY_SIZE;
@@ -172,7 +172,7 @@ void draw_graph(){                                      //function to draw graph
   }
 }
 
-void wifi_connection(){                                 //Wifi connection setup
+void wifi_connection(){                                 // Wifi connection setup
                   
   Serial.println("Connecting to ");
   Serial.println(ssid); 
