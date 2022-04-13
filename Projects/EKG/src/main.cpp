@@ -5,7 +5,7 @@
 #include <ESP8266TimerInterrupt.h>
 
 #define USING_TIM_DIV16        true        // for longest timer but least accurate. Default
-#define TIMER_INTERVAL_MS       15000
+#define TIMER_INTERVAL_MS       4
 #define IoPlus D6
 #define IoMinus D5
 #define ECGout A0
@@ -17,26 +17,31 @@ int Headindex=0;                               //start index at 0
 int Tailindex=0;                                
 int data=0;
 
-//WifiConfig & UDP
-WiFiUDP Udp;
-char incomingPacket[256];							//what size
-
-char replyPacket[] = "Hi there! Got the message :-)"; //debug
-unsigned int Serverport = 80;					//default
-unsigned int UDP_PORT = 4210;         //default
+long int i=0;
 
 const char* ssid     = "FRITZ!Box 7590 VL";         // The SSID (name) of the Wi-Fi network you want to connect to !propably needs changing, taken from pdf
 const char* password = "56616967766283031728";     // The password of the Wi-Fi network
 
-//ServerConfig
-//WiFiServer server(Serverport);
-int test=0;
+int data_from_buffer=0;
 
 SSD1306Wire display(0x3c, SDA, SCL);  //Setup display connection
 
 ESP8266Timer ITimer;                  //Init Timer 1
-int16_t displayArray[128];
 
+//UDP_Config
+/*WifiConfig & UDP
+WiFiUDP Udp;
+char incomingPacket[256];							//what size
+char replyPacket[] = "Hi there! Got the message :-)"; //debug
+unsigned int Serverport = 80;					//default
+unsigned int UDP_PORT = 4210;         //default
+*/
+
+//ServerConfig
+//WiFiServer server(Serverport);
+
+//int16_t displayArray[128];
+/*
 void buffer_save(){                       //Ringbuffer to save data
   dataarray[Headindex]=ecgreader();  
   Headindex++;                            //write index
@@ -50,7 +55,7 @@ int16_t buffer_read(){                       //Ringbuffer to read data
   if(data==0){
     Serial.println("No data in buffer");
     break;
-  }else{*/
+  }else{
     test=dataarray[Tailindex];
     Serial.println(test);
     Tailindex++;
@@ -79,7 +84,19 @@ for (int i=0;i<128;i++)
 {
   display.drawline(displayArray[i],i,displayArray[i+1],i+1);
 }
-}
+*/
+
+void fake_data(){         //Fake data for testing
+  
+  dataarray[Headindex]=2*(abs((i % 12) - 6));  //This gives a triangular wave of period 12, oscillating between 6 and 0.
+  i++;
+  i=i%100000;
+  Headindex++;      //write index
+  data++;           //incrementing fill status
+  Headindex=Headindex%ARRAY_SIZE;   //wraparound
+
+  }
+
 void IRAM_ATTR onTimerISR(){
     buffer_write();
     Serial.println("inside isr");
