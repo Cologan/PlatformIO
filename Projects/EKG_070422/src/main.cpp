@@ -15,15 +15,15 @@
 
 //=============================Globals=======================================================================================
 long int dataarray[ARRAY_SIZE]={0};                     // Array with 0
-long int Headindex=0;                                   // Write index
-long int Tailindex=0;                                   // Read index
-long int data=0;                                        // Fill status 
-int X=0;
+long int Headindex  = 0;                                // Write index
+long int Tailindex  = 0;                                // Read index
+long int data       = 0;                                // Fill status 
+int X               = 0;
 int X0;
 int Y0;
 int Y;
-long int i=0;                                           // Var required by fakedata function
-int data_from_buffer=0;                                 // Var to temp save data read from array
+long int i          = 0;                                // Var required by fakedata function
+int data_from_buffer= 0;                                // Var to temp save data read from array
 //===========================================================================================================================
 
 //=============================Wifi- Config==================================================================================

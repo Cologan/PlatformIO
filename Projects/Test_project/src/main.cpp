@@ -1,13 +1,14 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 
-const char* ssid = "FRITZ!Box 7530 HW";
-const char* password = "38629595962559540846";
+const char* ssid =      "FRITZ!Box 7530 HW";
+const char* password =  "38629595962559540846";
 
 WiFiUDP Udp;
 unsigned int localUdpPort = 4210;  // local port to listen on
 char incomingPacket[255];  // buffer for incoming packets
 char  replyPacket[] = "Hi there! Got the message :-)";  // a reply string to send back
+uint16  replyPacket2[] = {21};  // a reply string to send back
 
 
 void setup()
