@@ -27,15 +27,20 @@ int data_from_buffer= 0;                                // Var to temp save data
 //===========================================================================================================================
 
 //=============================Wifi- Config==================================================================================
-const char *ssid =  "FRITZ!Box 7590 VL";                // Name of Wifi
+/*const char *ssid =  "FRITZ!Box 7590 VL";                // Name of Wifi
 const char *pass =  "56616967766283031728";             // Password
+*/
+
+//Home- Wifi
+const char* ssid =      "FRITZ!Box 7530 HW";                // Name of Wifi
+const char* pass =  "38629595962559540846";             // Password
 //===========================================================================================================================
 
 //=============================UDP===========================================================================================
 WiFiUDP Udp;                                            
 unsigned int localUdpPort = 4210;                       // local port to listen on
-char incomingPacket[255];                               // buffer for incoming packets
-char  replyPacket[] = "Hi there! Got the message :-)";  // a reply string to send back
+char incomingPacket[255];                               // Buffer for incoming packets
+char  replyPacket[] = "ESP connection established";     // Reply string to send back
 //===========================================================================================================================
 
 //=============================Global Setup==================================================================================
@@ -52,6 +57,7 @@ void IRAM_ATTR TimerHandler();                          // Timer ISR
 void draw_grid();                                       // Draw X and Y Axis
 void draw_graph();                                      // Function to draw graph on oled screen
 void wifi_connection();                                 // Wifi connection setup
+void udp_connection();                                  // Recieve a String from Matlab and sends one back
 //===========================================================================================================================
 
 //=============================SETUP=========================================================================================
@@ -67,7 +73,7 @@ void setup() {                                          // put your setup code h
   Serial.print(F("CPU Frequency = "));                  //CPU stats
   Serial.print(F_CPU / 1000000); 
   Serial.println(F(" MHz"));
-  //wifi_connection();
+  wifi_connection();
   ITimer.attachInterruptInterval(TIMER_INTERVAL_MS * 1000, TimerHandler);
 
   pinMode(loPlus, INPUT);                               // Setup for leads off detection LO +
@@ -84,8 +90,9 @@ void setup() {                                          // put your setup code h
 //=============================LOOP==========================================================================================
 void loop() {                                           // put your main code here, to run repeatedly:
   //draw_graph();
-  buffer_read();
-  delay(4);                                             //refresh at 2miliseconds
+  //buffer_read();
+  //delay(4);                                             //refresh at 2miliseconds
+  udp_connection();
 }
 //===========================================================================================================================
 
@@ -193,4 +200,23 @@ void wifi_connection(){                                 // Wifi connection setup
   Serial.println(localUdpPort);
 }
 
+void udp_connection(){                                  // Recieve a String from Matlab and sends one back
+  int packetSize = Udp.parsePacket();
+  if (packetSize)
+  {
+    // receive incoming UDP packets
+    Serial.printf("Received %d bytes from %s, port %d\n", packetSize, Udp.remoteIP().toString().c_str(), Udp.remotePort());
+    int len = Udp.read(incomingPacket, 255);
+    if (len > 0)
+    {
+      incomingPacket[len] = 0;
+    }
+    Serial.printf("UDP packet contents: %s\n", incomingPacket);
+
+    // send back a reply, to the IP address and port we got the packet from
+    Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+    Udp.write(replyPacket);
+    Udp.endPacket();
+  }
+}
 //===========================================================================================================================
